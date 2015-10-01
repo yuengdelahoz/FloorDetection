@@ -45,6 +45,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 			}
 		}
 	};
+	// I don't know what is going on
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

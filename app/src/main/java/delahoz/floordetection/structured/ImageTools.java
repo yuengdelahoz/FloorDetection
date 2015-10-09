@@ -1,6 +1,6 @@
 package delahoz.floordetection.structured;
 
-import java.io.File;
+import android.util.Log;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -8,7 +8,7 @@ import org.opencv.core.Size;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
-import android.util.Log;
+import java.io.File;
 
 public class ImageTools {
 
@@ -38,7 +38,7 @@ public class ImageTools {
 	}
 
 	public void SaveImage(Mat img, String name) {
-		File ph = new File("storage/sdcard0/Floor" + "/Output");
+		File ph = new File("sdcard/Floor/Output");
 		Mat img2 = new Mat(img.size(), img.type());
 		String val = "";
 		if (kval < 10)

@@ -1,5 +1,11 @@
 package delahoz.floordetection.structured;
 
+import android.app.Activity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.SurfaceView;
+import android.view.WindowManager;
+
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
@@ -7,14 +13,6 @@ import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
-
-import android.app.Activity;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.SurfaceView;
-import android.view.WindowManager;
-
-import delahoz.floordetection.structured.R;
 
 public class CameraActivity extends Activity implements CvCameraViewListener2 {
 	private static final String TAG = "OCVSample::Activity";
@@ -56,6 +54,8 @@ public class CameraActivity extends Activity implements CvCameraViewListener2 {
 		setContentView(R.layout.helloopencvlayout);
 		mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.HelloOpenCvView);
 		mOpenCvCameraView.setMaxFrameSize(320, 240);
+		SurfaceView view = new SurfaceView(this);
+
 		mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 		mOpenCvCameraView.setCvCameraViewListener(this);
 		Tool = new ImageTools();

@@ -41,6 +41,8 @@
         </activity>
         <activity android:name=".CameraActivity" >
         </activity>
+        <service android:name=".Camera2Service"
+            android:process=":remote"/>
     </application>
 
 </manifest>

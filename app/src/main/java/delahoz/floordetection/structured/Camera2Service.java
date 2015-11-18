@@ -22,6 +22,11 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.opencv.android.BaseLoaderCallback;
+import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Mat;
+
 import java.util.Arrays;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -69,6 +74,41 @@ public class Camera2Service extends Service {
         }
     };
 
+    private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
+        @Override
+        public void onManagerConnected(int status) {
+            switch (status) {
+                case LoaderCallbackInterface.SUCCESS: {
+                    Log.i(TAG, "OpenCV loaded successfully");
+
+                    startBackgroundThread();
+                    active = true;
+                    CameraManager manager = (CameraManager) getSystemService(CAMERA_SERVICE);
+
+                    try {
+                        imageReader = ImageReader.newInstance(320, 240, ImageFormat.YUV_420_888,2);
+                        imageReader.setOnImageAvailableListener(onImageAvailableListener, null);
+                        Log.i(TAG, "onStartCommand");
+                        if (!mCameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
+                            throw new RuntimeException("Time out waiting to lock camera opening.");
+                        }
+                        mCameraOpenCloseLock.release();
+                        manager.openCamera(getCamera(manager), cameraStateCallback,null);
+                        imgTool = new ImageTools();
+                    } catch (CameraAccessException e) {
+                        Log.e(TAG, e.getMessage());
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                break;
+                default: {
+                    super.onManagerConnected(status);
+                }
+                break;
+            }
+        }
+    };
     private CameraCaptureSession.StateCallback sessionStateCallback = new CameraCaptureSession.StateCallback() {
         @Override
         public void onConfigured(CameraCaptureSession session) {
@@ -88,14 +128,12 @@ public class Camera2Service extends Service {
     };
 
     private ImageReader.OnImageAvailableListener onImageAvailableListener = new ImageReader.OnImageAvailableListener() {
-
         @Override
         public void onImageAvailable(ImageReader reader) {
-            Image img = reader.acquireLatestImage();
-//            processImage(img);
+            Image img = reader.acquireNextImage();
+            if (img == null) return;
+            processImage(img);
             img.close();
-            Log.i(TAG,"onImageAvailable");
-
         }
     };
 
@@ -134,26 +172,9 @@ public class Camera2Service extends Service {
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startBackgroundThread();
-        active = true;
+        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_11, this,
+                mLoaderCallback);
         Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
-        CameraManager manager = (CameraManager) getSystemService(CAMERA_SERVICE);
-
-        try {
-            imageReader = ImageReader.newInstance(320, 240, ImageFormat.YUV_420_888,2);
-            imageReader.setOnImageAvailableListener(onImageAvailableListener, null);
-            Log.i(TAG, "onStartCommand");
-            if (!mCameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
-                throw new RuntimeException("Time out waiting to lock camera opening.");
-            }
-            mCameraOpenCloseLock.release();
-            manager.openCamera(getCamera(manager), cameraStateCallback,null);
-            imgTool = new ImageTools();
-        } catch (CameraAccessException e) {
-            Log.e(TAG, e.getMessage());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -174,9 +195,8 @@ public class Camera2Service extends Service {
     private void processImage(Image image) {
         //Process image data
         final long timestamp = System.currentTimeMillis();
-//        Log.i(TAG, ""+timestamp);
-//        Mat rgbMat = imgTool.YUV2RGB(image);
-//        imgTool.SaveImage(rgbMat, timestamp + "_P_");
+        Mat rgbMat = imgTool.YUV2RGB(image);
+        imgTool.SaveImage(rgbMat, timestamp + "_P_");
     }
 
     private CaptureRequest createCaptureRequest() {

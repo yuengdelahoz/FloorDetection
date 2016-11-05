@@ -1,0 +1,4 @@
+System Evaluation Results
+Accuracy 0.785451825632
+Precision 0.899980138583
+Recall 0.698918678392

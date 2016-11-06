@@ -1,4 +1,11 @@
 System Evaluation Results
+Including rooms
 Accuracy 0.785451825632
 Precision 0.899980138583
 Recall 0.698918678392
+
+excluding rooms
+System Evaluation Results
+Accuracy 0.819205199769
+Precision 0.903799673302
+Recall 0.74339425639

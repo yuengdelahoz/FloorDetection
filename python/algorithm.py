@@ -207,7 +207,7 @@ class FloorDetection:
                         ptsL = self.getVpoints(self.Lvlines,-1)
 
         self.floorLines = [ptsL,ptsR,[ptsL[0],ptsL[1],ptsR[0],ptsR[1]]]
-        self.paintImages(self.floorLines,self.outputimg2,self.img.copy(),self.Wimg.copy())
+        # self.paintImages(self.floorLines,self.outputimg2,self.img.copy(),self.Wimg.copy())
 
     def drawFloor(self):
         img = self.img.copy()
@@ -253,10 +253,12 @@ class FloorDetection:
                         print(subfolder.name)
                         for file in os.scandir(subfolder.path):
                             if file.name.endswith('.png') or file.name.endswith('.jpg'):
-                                print(file.name)
+                                print(file.path)
                                 lbl = cv2.imread(file.path,0)
                                 folder,_ = file.path.split('labels')
                                 output = cv2.imread(folder+'output/'+file.name,0)
+                                if lbl == None or output == None:
+                                    continue
                                 acc,prec,rec, = calculateMetrics(lbl,output)
                                 Accuracy.append(acc)
                                 Precision.append(prec)

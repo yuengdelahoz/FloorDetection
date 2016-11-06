@@ -5,7 +5,7 @@ from algorithm import FloorDetection
 
 def processBatch():
     for folder in os.scandir('Images'):
-        if folder.is_dir() and folder.name == 'input':
+        if folder.is_dir():
             for subfolder in os.scandir(folder.path):
                 if subfolder.is_dir() and subfolder.name=='originals':
                     for img in os.scandir(subfolder.path):
